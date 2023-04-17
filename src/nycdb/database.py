@@ -40,7 +40,7 @@ class Database:
             curs.execute(SQL)
         self.conn.commit()
 
-    def insert_rows(self, rows, schema, update=False, table_suffix=""):
+    def insert_rows(self, rows, schema, table_suffix=""):
         """
         Inserts many rows, all in the same transaction, using psycopg2.extras.execute_values
         """
@@ -61,7 +61,7 @@ class Database:
             rows = deduped_rows
 
         with self.conn.cursor() as curs:
-            sql_str, template = sql.insert_many(table_name, rows, pk_fields, update)
+            sql_str, template = sql.insert_many(table_name, rows, pk_fields)
             try:
                 psycopg2.extras.execute_values(
                     curs, sql_str, rows, template=template, page_size=len(rows)

@@ -30,3 +30,9 @@ schema:
     nta: text
   pk_fields:
     - vacateordernumber
+  index_fields:
+    - bbl
+    - bin
+    - street
+    - number
+    - borough

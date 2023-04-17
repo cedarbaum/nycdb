@@ -26,6 +26,11 @@ schema:
     - status
     - dateentered
     - bin
+  index_fields:
+    - bbl
+    - housestreet
+    - housenumber
+    - zipcode
 
 sql:
   - dob_complaints.sql

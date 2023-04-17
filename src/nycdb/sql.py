@@ -14,7 +14,18 @@ def create_table(table_name, fields, pk_fields=[]):
     return sql
 
 
-def insert_many(table_name, rows, pk_fields=[], update=False):
+def create_index_for_column(table_name, column_name):
+    """
+    String, String
+    """
+    sql = "CREATE INDEX IF NOT EXISTS {}_{}_idx ON {} ({})".format(
+        table_name, column_name, table_name, column_name
+    )
+
+    return sql
+
+
+def insert_many(table_name, rows, pk_fields=[]):
     """
     Given a table name and a list of dictionaries representing
     rows, generate a (sql, template) tuple of strings that can be

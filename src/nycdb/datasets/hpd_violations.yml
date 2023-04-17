@@ -51,3 +51,9 @@ schema:
     RentImpairing: boolean
   pk_fields:
     - violationid
+  index_fields:
+    - bbl
+    - bin
+    - streetname
+    - housenumber
+    - borough

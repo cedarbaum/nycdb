@@ -28,6 +28,12 @@ schema:
       bbl: char(10)
     pk_fields:
       - complaintid
+    index_fields:
+      - bbl
+      - buildingid
+      - streetname
+      - housenumber
+      - borough
   -
     table_name: hpd_complaint_problems
     fields:
@@ -51,5 +57,7 @@ schema:
       StatusDescription: text
     pk_fields:
       - problemid
+    index_fields:
+        - complaintid
 sql:
   - hpd_complaints.sql

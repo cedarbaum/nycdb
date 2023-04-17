@@ -27,5 +27,11 @@ schema:
     ViolationType: text
   pk_fields:
     - number
+  index_fields:
+    - bbl
+    - bin
+    - boro
+    - housenumber
+    - street
 sql:
   - dob_violations.sql

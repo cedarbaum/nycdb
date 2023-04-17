@@ -34,3 +34,9 @@ schema:
     Nta: text
   pk_fields:
     - litigationid
+  index_fields:
+    - bbl
+    - bin
+    - streetname
+    - housenumber
+    - boro

@@ -19,3 +19,12 @@ schema:
     ComplaintCategoryDescription: text
     LastDispositionCodeDescription: text
     BBL: char(10)
+  pk_fields:
+    - lastdispositiondatedateofissuanceofvacate
+    - housenumber
+    - streetname
+    - complaintcategorydescription
+    - lastdispositioncodedescription
+  index_fields:
+    - bbl
+    - boroughname

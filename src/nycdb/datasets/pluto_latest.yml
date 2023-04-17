@@ -99,6 +99,11 @@ schema:
     geom: text
     dcpedited: text
     Notes: text
+  pk_fields:
+    - bbl
+  index_fields:
+    - address
+    - borough
   skip:
     - mapplutof
     - rpaddate
