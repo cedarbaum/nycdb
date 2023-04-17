@@ -40,11 +40,11 @@ class Database:
             curs.execute(SQL)
         self.conn.commit()
 
-    def insert_rows(self, rows, schema, update=False):
+    def insert_rows(self, rows, schema, update=False, table_suffix=""):
         """
         Inserts many rows, all in the same transaction, using psycopg2.extras.execute_values
         """
-        table_name = schema["table_name"]
+        table_name = schema["table_name"] + table_suffix
         if table_name is None:
             table_name = self.table_name
 
@@ -62,6 +62,7 @@ class Database:
 
         with self.conn.cursor() as curs:
             sql_str, template = sql.insert_many(table_name, rows, pk_fields, update)
+            print(f"Inserting {len(rows)} rows")
             try:
                 psycopg2.extras.execute_values(
                     curs, sql_str, rows, template=template, page_size=len(rows)

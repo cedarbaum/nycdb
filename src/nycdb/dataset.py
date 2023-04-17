@@ -40,16 +40,20 @@ class Dataset:
 
         if self.args:
             self.root_dir = self.args.root_dir
+            self.table_suffix = self.args.table_suffix
         else:
-            self.root_dir = './data'
+            self.root_dir = "./data"
+            self.table_suffix = ""
 
         self.dataset = datasets()[dataset_name]
         self.files = self._files()
-        self.schemas = list_wrap(self.dataset['schema'])
+        self.schemas = list_wrap(self.dataset["schema"])
 
     def _files(self):
-        return [File(file_dict, folder=self.name, root_dir=self.root_dir) for file_dict in self.dataset['files']]
-
+        return [
+            File(file_dict, folder=self.name, root_dir=self.root_dir)
+            for file_dict in self.dataset["files"]
+        ]
 
     def download_files(self):
         """
@@ -59,7 +63,6 @@ class Dataset:
         """
         for f in self.files:
             f.download(hide_progress=self.args.hide_progress)
-
 
     def db_import(self, update=False):
         """
@@ -83,11 +86,11 @@ class Dataset:
         This method creates those indices.
         It does nothing if the dataset has no additional indexes
         """
-        if 'index' in self.dataset:
-            for sql_file in self.dataset['index']:
+        if "index" in self.dataset:
+            for sql_file in self.dataset["index"]:
                 self.db.execute_sql_file(sql_file)
         else:
-            logging.debug('no index files exist for this dataset')
+            logging.debug("no index files exist for this dataset")
 
     def transform(self, schema):
         """
@@ -103,7 +106,7 @@ class Dataset:
         tc = Typecast(schema)
 
         try:
-            rows = getattr(dataset_transformations, schema['table_name'])(self)
+            rows = getattr(dataset_transformations, schema["table_name"])(self)
         except AttributeError:
             rows = getattr(dataset_transformations, self.name)(self, schema)
 
@@ -115,31 +118,35 @@ class Dataset:
         """
         rows = self.transform(schema)
 
-        pbar = tqdm(unit='rows', disable=self.args.hide_progress)
+        pbar = tqdm(unit="rows", disable=self.args.hide_progress)
         while True:
             batch = list(itertools.islice(rows, 0, BATCH_SIZE))
             if len(batch) == 0:
                 break
             else:
                 pbar.update(len(batch))
-                self.db.insert_rows(batch, schema, update)
+                self.db.insert_rows(batch, schema, update, self.table_suffix)
         pbar.close()
 
     def create_schema(self):
         """
         Issues CREATE TABLE statements for all tables in the dataset.
         """
-        create_table = lambda name, fields, pks: self.db.sql(sql.create_table(name, fields, pks))
+        create_table = lambda name, fields, pks: self.db.sql(
+            sql.create_table(name, fields, pks)
+        )
 
         for s in self.schemas:
-            create_table(s['table_name'], s['fields'], s.get('pk_fields', []))
+            create_table(
+                s["table_name"] + self.table_suffix, s["fields"], s.get("pk_fields", [])
+            )
 
     def sql_files(self):
         """
         Executes all sql files for the dataset.
         """
-        if 'sql' in self.dataset:
-            for f in self.dataset['sql']:
+        if "sql" in self.dataset:
+            for f in self.dataset["sql"]:
                 self.db.execute_sql_file(f)
 
     def setup_db(self):
@@ -147,7 +154,7 @@ class Dataset:
         Establishes the Database object. Used to lazy-load self.db.
         """
         if self.db is None:
-            self.db = Database(self.args, table_name=self.name)
+            self.db = Database(self.args, table_name=self.name + self.table_suffix)
 
     def verify(self):
         """
@@ -162,9 +169,18 @@ class Dataset:
         Creates .sql dump file of the datasets.
         Saves the file with the format [DATASET_NAME]-DATE.sql
         """
-        tables = ['--table={}'.format(s['table_name']) for s in self.schemas]
-        file_arg = '--file=./{}-{}.sql'.format(self.name, datetime.date.today().isoformat())
-        cmd = ["pg_dump", "--no-owner", "--clean", "--if-exists", "-w"] + tables + [file_arg]
+        tables = [
+            "--table={}".format(s["table_name"] + self.table_suffix)
+            for s in self.schemas
+        ]
+        file_arg = "--file=./{}-{}.sql".format(
+            self.name, datetime.date.today().isoformat()
+        )
+        cmd = (
+            ["pg_dump", "--no-owner", "--clean", "--if-exists", "-w"]
+            + tables
+            + [file_arg]
+        )
         subprocess.run(cmd, env=self.pg_env(), check=True)
 
     def pg_env(self):
@@ -176,9 +192,10 @@ class Dataset:
         return merge(
             os.environ.copy(),
             {
-                'PGHOST': self.args.host,
-                'PGPORT': self.args.port,
-                'PGUSER': self.args.user,
-                'PGDATABASE': self.args.database,
-                'PGPASSWORD': self.args.password
-            })
+                "PGHOST": self.args.host,
+                "PGPORT": self.args.port,
+                "PGUSER": self.args.user,
+                "PGDATABASE": self.args.database,
+                "PGPASSWORD": self.args.password,
+            },
+        )
