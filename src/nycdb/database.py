@@ -62,7 +62,6 @@ class Database:
 
         with self.conn.cursor() as curs:
             sql_str, template = sql.insert_many(table_name, rows, pk_fields, update)
-            print(f"Inserting {len(rows)} rows")
             try:
                 psycopg2.extras.execute_values(
                     curs, sql_str, rows, template=template, page_size=len(rows)
