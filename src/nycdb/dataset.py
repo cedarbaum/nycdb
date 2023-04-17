@@ -61,7 +61,7 @@ class Dataset:
             f.download(hide_progress=self.args.hide_progress)
 
 
-    def db_import(self):
+    def db_import(self, update=False):
         """
         Inserts the dataset in the postgres.
         Output:  True | Throws
@@ -70,9 +70,10 @@ class Dataset:
         self.create_schema()
 
         for schema in self.schemas:
-            self.import_schema(schema)
+            self.import_schema(schema, update)
 
-        self.sql_files()
+        if not update:
+            self.sql_files()
 
     def index(self):
         """
@@ -108,7 +109,7 @@ class Dataset:
 
         return tc.cast_rows(rows)
 
-    def import_schema(self, schema):
+    def import_schema(self, schema, update=False):
         """
         Imports the schema (table) into postgres in batches.
         """
@@ -121,17 +122,17 @@ class Dataset:
                 break
             else:
                 pbar.update(len(batch))
-                self.db.insert_rows(batch, table_name=schema['table_name'])
+                self.db.insert_rows(batch, schema, update)
         pbar.close()
 
     def create_schema(self):
         """
         Issues CREATE TABLE statements for all tables in the dataset.
         """
-        create_table = lambda name, fields: self.db.sql(sql.create_table(name, fields))
+        create_table = lambda name, fields, pks: self.db.sql(sql.create_table(name, fields, pks))
 
         for s in self.schemas:
-            create_table(s['table_name'], s['fields'])
+            create_table(s['table_name'], s['fields'], s.get('pk_fields', []))
 
     def sql_files(self):
         """

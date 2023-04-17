@@ -109,3 +109,5 @@ schema:
     - masdate
     - polidate
     - edesigdate
+    - bct2020
+    - bctcb2020

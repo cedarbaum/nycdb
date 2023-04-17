@@ -21,5 +21,11 @@ schema:
     dispositioncode: text
     inspectiondate: date
     dobrundate: date
+  pk_fields:
+    - complaintnumber
+    - status
+    - dateentered
+    - bin
+
 sql:
   - dob_complaints.sql

@@ -32,3 +32,5 @@ schema:
     Bin: char(7)
     Bbl: char(10)
     Nta: text
+  pk_fields:
+    - litigationid

@@ -25,5 +25,7 @@ schema:
     Number: text
     ViolationCategory: text
     ViolationType: text
+  pk_fields:
+    - number
 sql:
   - dob_violations.sql

@@ -26,6 +26,8 @@ schema:
       Status: text
       StatusDate: date
       bbl: char(10)
+    pk_fields:
+      - complaintid
   -
     table_name: hpd_complaint_problems
     fields:
@@ -47,5 +49,7 @@ schema:
       Status: text
       StatusDate: date
       StatusDescription: text
+    pk_fields:
+      - problemid
 sql:
   - hpd_complaints.sql

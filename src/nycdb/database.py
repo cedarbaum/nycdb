@@ -11,6 +11,7 @@ class Database:
 
 
     """
+
     def __init__(self, args, table_name=None):
         """
         args is a Namespace that must contain: user, password, database, host, and port
@@ -20,17 +21,17 @@ class Database:
             password=args.password,
             host=args.host,
             database=args.database,
-            port=args.port
+            port=args.port,
         )
 
         self.table_name = table_name
 
         self.connection_params = {
-            'user': args.user,
-            'password': args.password,
-            'host': args.host,
-            'database': args.database,
-            'port': args.port
+            "user": args.user,
+            "password": args.password,
+            "host": args.host,
+            "database": args.database,
+            "port": args.port,
         }
 
     def sql(self, SQL):
@@ -39,26 +40,34 @@ class Database:
             curs.execute(SQL)
         self.conn.commit()
 
-    def insert_rows(self, rows, table_name=None):
+    def insert_rows(self, rows, schema, update=False):
         """
         Inserts many rows, all in the same transaction, using psycopg2.extras.execute_values
         """
-
+        table_name = schema["table_name"]
         if table_name is None:
             table_name = self.table_name
 
+        pk_fields = schema.get("pk_fields", [])
+
+        if len(pk_fields) > 0:
+            deduped_rows = []
+            seen = set()
+            for row in rows:
+                pk = tuple([row[field] for field in pk_fields])
+                if pk not in seen:
+                    deduped_rows.append(row)
+                    seen.add(pk)
+            rows = deduped_rows
+
         with self.conn.cursor() as curs:
-            sql_str, template = sql.insert_many(table_name, rows)
+            sql_str, template = sql.insert_many(table_name, rows, pk_fields, update)
             try:
                 psycopg2.extras.execute_values(
-                    curs,
-                    sql_str,
-                    rows,
-                    template=template,
-                    page_size=len(rows)
+                    curs, sql_str, rows, template=template, page_size=len(rows)
                 )
             except psycopg2.DataError:
-                print(rows) # useful for debugging
+                print(rows)  # useful for debugging
                 raise
         self.conn.commit()
 
@@ -67,9 +76,9 @@ class Database:
         Executes the provided sql file.
         It assumes the path is relative to ./sql
         """
-        file_path = os.path.join(os.path.dirname(__file__), 'sql', sql_file)
+        file_path = os.path.join(os.path.dirname(__file__), "sql", sql_file)
 
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             self.sql(f.read())
 
     def execute_and_fetchone(self, query):
@@ -80,10 +89,11 @@ class Database:
             curs.execute(query)
             return curs.fetchone()[0]
 
-
     def table_exists(self, table_name):
         """Tests if the table exists"""
-        query = "SELECT EXISTS(SELECT 1 FROM information_schema.tables where table_name = '{0}')".format(table_name)
+        query = "SELECT EXISTS(SELECT 1 FROM information_schema.tables where table_name = '{0}')".format(
+            table_name
+        )
         return self.execute_and_fetchone(query)
 
     def row_count(self, table_name):
@@ -92,4 +102,6 @@ class Database:
         return self.execute_and_fetchone(query)
 
     def password_file_contents(self):
-        return "{host}:{port}:{database}:{user}:{password}".format(**self.connection_params)
+        return "{host}:{port}:{database}:{user}:{password}".format(
+            **self.connection_params
+        )

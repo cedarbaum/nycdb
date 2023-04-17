@@ -28,3 +28,5 @@ schema:
     bin: char(7)
     bbl: char(10)
     nta: text
+  pk_fields:
+    - vacateordernumber

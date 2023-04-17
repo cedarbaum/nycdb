@@ -49,3 +49,5 @@ schema:
     BBL: char(10)
     NTA: text
     RentImpairing: boolean
+  pk_fields:
+    - violationid
