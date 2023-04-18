@@ -75,6 +75,16 @@ class Dataset:
         for schema in self.schemas:
             self.import_schema(schema)
 
+        # Create an index for each column specified in the index_fields list
+        for s in self.schemas:
+            cols_to_index = s.get("index_fields", [])
+            for col in cols_to_index:
+                self.db.sql(
+                    sql.create_index_for_column(
+                        s["table_name"] + self.table_suffix, col
+                    )
+                )
+
         if not skip_sql_files:
             self.sql_files()
 
@@ -140,15 +150,6 @@ class Dataset:
             create_table(
                 s["table_name"] + self.table_suffix, s["fields"], s.get("pk_fields", [])
             )
-
-            # Create an index for each column specified in the index_fields list
-            cols_to_index = s.get("index_fields", [])
-            for col in cols_to_index:
-                self.db.sql(
-                    sql.create_index_for_column(
-                        s["table_name"] + self.table_suffix, col
-                    )
-                )
 
     def sql_files(self):
         """
