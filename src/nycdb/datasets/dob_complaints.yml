@@ -25,11 +25,18 @@ schema:
     - complaintnumber
     - status
     - dateentered
-    - bin
-  index_fields:
-    - housestreet
     - housenumber
     - zipcode
+    - housestreet
+    - bin
+    - communityboard
+    - specialdistrict
+    - complaintcategory
+    - unit
+    - dispositiondate
+    - dispositioncode
+    - inspectiondate
+    - dobrundate
 
 sql:
   - dob_complaints.sql
