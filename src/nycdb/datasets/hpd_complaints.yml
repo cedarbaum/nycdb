@@ -58,6 +58,6 @@ schema:
     pk_fields:
       - problemid
     index_fields:
-        - complaintid
+      - complaintid
 sql:
   - hpd_complaints.sql
