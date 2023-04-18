@@ -18,7 +18,7 @@ def create_index_for_column(table_name, column_name):
     """
     String, String
     """
-    sql = "CREATE INDEX IF NOT EXISTS {}_{}_idx ON {} ({})".format(
+    sql = "CREATE INDEX ON {} ({})".format(
         table_name, column_name, table_name, column_name
     )
 
