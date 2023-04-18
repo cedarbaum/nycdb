@@ -27,7 +27,6 @@ schema:
     - dateentered
     - bin
   index_fields:
-    - bbl
     - housestreet
     - housenumber
     - zipcode
