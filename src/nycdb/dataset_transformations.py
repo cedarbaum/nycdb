@@ -59,6 +59,8 @@ def {pluto_version}(dataset):
     return _pluto(dataset)
 ''')
 
+def hpd_complaints_and_problems(dataset):
+    return to_csv(dataset.files[0].dest)
 
 def hpd_complaints(dataset):
     return with_bbl(to_csv(dataset.files[0].dest))
