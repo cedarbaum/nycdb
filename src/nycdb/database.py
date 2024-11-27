@@ -13,16 +13,21 @@ class Database:
     """
 
     def __init__(self, args, table_name=None):
-        """
-        args is a Namespace that must contain: user, password, database, host, and port
-        """
-        self.conn = psycopg2.connect(
-            user=args.user,
-            password=args.password,
-            host=args.host,
-            database=args.database,
-            port=args.port,
-        )
+        if args.connect_using_env_vars:
+            self.conn = psycopg2.connect("")
+        else:
+            """
+            args is a Namespace that must contain: user, password, database, host, and port
+            """
+            self.conn = psycopg2.connect(
+                user=args.user,
+                password=args.password,
+                host=args.host,
+                database=args.database,
+                port=args.port,
+                sslmode=args.sslmode,
+                sslrootcert=args.sslrootcert,
+            )
 
         self.table_name = table_name
 
@@ -35,7 +40,7 @@ class Database:
         }
 
     def sql(self, SQL):
-        """ executes single sql statement """
+        """executes single sql statement"""
         with self.conn.cursor() as curs:
             curs.execute(SQL)
         self.conn.commit()
