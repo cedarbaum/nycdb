@@ -31,15 +31,15 @@ class Database:
                 sslrootcert=args.sslrootcert,
             )
 
-        self.table_name = table_name
+            self.connection_params = {
+                "user": args.user,
+                "password": args.password,
+                "host": args.host,
+                "database": args.database,
+                "port": args.port,
+            }
 
-        self.connection_params = {
-            "user": args.user,
-            "password": args.password,
-            "host": args.host,
-            "database": args.database,
-            "port": args.port,
-        }
+        self.table_name = table_name
 
     def sql(self, SQL):
         """executes single sql statement"""
@@ -47,11 +47,11 @@ class Database:
             curs.execute(SQL)
         self.conn.commit()
 
-    def insert_rows(self, rows, schema, table_suffix=""):
+    def insert_rows(self, rows, schema):
         """
         Inserts many rows, all in the same transaction, using psycopg2.extras.execute_values
         """
-        table_name = schema["table_name"] + table_suffix
+        table_name = schema["table_name"]
         if table_name is None:
             table_name = self.table_name
 
@@ -109,6 +109,9 @@ class Database:
         return self.execute_and_fetchone(query)
 
     def password_file_contents(self):
+        if self.connection_params is None:
+            return ""
+
         return "{host}:{port}:{database}:{user}:{password}".format(
             **self.connection_params
         )

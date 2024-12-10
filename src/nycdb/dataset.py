@@ -40,10 +40,8 @@ class Dataset:
 
         if self.args:
             self.root_dir = self.args.root_dir
-            self.table_suffix = self.args.table_suffix
         else:
             self.root_dir = "./data"
-            self.table_suffix = ""
 
         self.dataset = datasets()[dataset_name]
         self.files = self._files()
@@ -81,7 +79,7 @@ class Dataset:
             for col in cols_to_index:
                 self.db.sql(
                     sql.create_index_for_column(
-                        s["table_name"] + self.table_suffix, col
+                        s["table_name"], col
                     )
                 )
 
@@ -135,7 +133,7 @@ class Dataset:
                 break
             else:
                 pbar.update(len(batch))
-                self.db.insert_rows(batch, schema, self.table_suffix)
+                self.db.insert_rows(batch, schema)
         pbar.close()
 
     def create_schema(self):
@@ -148,7 +146,7 @@ class Dataset:
 
         for s in self.schemas:
             create_table(
-                s["table_name"] + self.table_suffix, s["fields"], s.get("pk_fields", [])
+                s["table_name"], s["fields"], s.get("pk_fields", [])
             )
 
     def sql_files(self):
@@ -164,7 +162,7 @@ class Dataset:
         Establishes the Database object. Used to lazy-load self.db.
         """
         if self.db is None:
-            self.db = Database(self.args, table_name=self.name + self.table_suffix)
+            self.db = Database(self.args, table_name=self.name)
 
     def verify(self):
         """
@@ -180,7 +178,7 @@ class Dataset:
         Saves the file with the format [DATASET_NAME]-DATE.sql
         """
         tables = [
-            "--table={}".format(s["table_name"] + self.table_suffix)
+            "--table={}".format(s["table_name"])
             for s in self.schemas
         ]
         file_arg = "--file=./{}-{}.sql".format(
