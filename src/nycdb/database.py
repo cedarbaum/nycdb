@@ -13,7 +13,9 @@ class Database:
     """
 
     def __init__(self, args, table_name=None):
-        if args.connect_using_env_vars:
+        if args.conn:
+            self.conn = args.conn
+        elif args.connect_using_env_vars:
             self.conn = psycopg2.connect("")
         else:
             """
