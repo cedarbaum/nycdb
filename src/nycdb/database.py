@@ -13,8 +13,11 @@ class Database:
     """
 
     def __init__(self, args, table_name=None):
+        self.commit = True
         if args.conn:
             self.conn = args.conn
+            if args.commit != True and args.commit != "true":
+                self.commit = False
         elif args.connect_using_env_vars:
             self.conn = psycopg2.connect("")
         else:
@@ -45,7 +48,9 @@ class Database:
         """executes single sql statement"""
         with self.conn.cursor() as curs:
             curs.execute(SQL)
-        self.conn.commit()
+
+        if self.commit:
+            self.conn.commit()
 
     def insert_rows(self, rows, schema):
         """
@@ -76,7 +81,8 @@ class Database:
             except psycopg2.DataError:
                 print(rows)  # useful for debugging
                 raise
-        self.conn.commit()
+        if self.commit:
+            self.conn.commit()
 
     def execute_sql_file(self, sql_file):
         """
