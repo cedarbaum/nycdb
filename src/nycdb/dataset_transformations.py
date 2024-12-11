@@ -35,8 +35,8 @@ def _pluto(dataset):
     extension = 'txt' if dataset.name == 'pluto_10v1' else 'csv'
 
     if dataset.name == 'pluto_latest':
-        pluto_generator = to_csv(dataset.files[0].dest)
-    else:    
+        pluto_generator = to_csv(dataset.files[0].dest, header_replacements={"taxblock": "block", "taxlot": "lot"})
+    else:
         pluto_generator = to_csv(stream_files_from_zip(dataset.files[0].dest, extension=extension))
 
     pluto_fields_to_skip = dataset.schemas[0].get('skip')
